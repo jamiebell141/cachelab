@@ -3,6 +3,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <stdint.h>
+
+
 
 int main(int argc, char *argv[])
 {
@@ -34,6 +37,24 @@ int main(int argc, char *argv[])
     }
 
     // setup simulated cache based on command line arguments
+    int sets = 1<<set_bits;
+    //int block_size = 1<<block_bits;
+    //int tag_bits = 64-block_bits-set_bits;
+
+    // malloc malloc for 2d array
+    // for each set
+    int** cache = malloc(sizeof(*cache) * sets);
+    int ** valid_bits = malloc(sizeof(*valid_bits) * sets);
+    int64_t ** tags = malloc(sizeof(*tags) * sets);
+    for (int s=0; s<sets; s++) {
+        // for each line in a set
+        cache[s] = malloc (sizeof(int) * lines);
+        valid_bits[s] = malloc(sizeof(int) * lines);
+        tags[s] = malloc(sizeof(int64_t) * lines);
+    }
+    
+
+
     // how to do LRU?
 
     int hit_count = 0;
@@ -41,6 +62,16 @@ int main(int argc, char *argv[])
     int eviction_count = 0;
 
     // fscanf the trace and update the cache accordingly
+
+    // free malloced memory
+    for (int s=0; s<sets; s++) {
+        free(cache[s]);
+        free(valid_bits[s]);
+        free(tags[s]);
+    }
+    free(cache);
+    free(valid_bits);
+    free(tags);
 
     printf("Set bits: %d\nLines: %d\nBlock bits: %d\nVerbose: %d\n", set_bits, lines, block_bits, verbose);
     printSummary(hit_count, miss_count, eviction_count);
