@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <stdint.h>
+#include <string.h>
 
 
 
@@ -14,10 +15,11 @@ int main(int argc, char *argv[])
     int lines = 0;
     int block_bits = 0;
     char verbose = 0;
+    char trace_name[60];
 
     int opt;
 
-    while((opt = getopt(argc, argv, "s:E:b:v")) != -1) {
+    while((opt = getopt(argc, argv, "s:E:b:vt:")) != -1) {
         switch (opt) {
             case 's':
                 set_bits = atoi(optarg);
@@ -28,6 +30,9 @@ int main(int argc, char *argv[])
             case 'b':
                 block_bits = atoi(optarg);
                 break;
+	    case 't':
+		strncpy(trace_name, optarg, strlen(optarg));
+		break;	
             case 'v':
                 verbose = 1;
             default:
@@ -73,7 +78,7 @@ int main(int argc, char *argv[])
     free(valid_bits);
     free(tags);
 
-    printf("Set bits: %d\nLines: %d\nBlock bits: %d\nVerbose: %d\n", set_bits, lines, block_bits, verbose);
+    printf("Set bits: %d\nLines: %d\nBlock bits: %d\nVerbose: %d\nTrace:%s\n", set_bits, lines, block_bits, verbose, trace_name);
     printSummary(hit_count, miss_count, eviction_count);
     return 0;
 }
