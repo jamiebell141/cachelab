@@ -5,18 +5,29 @@
 #include <getopt.h>
 #include <stdint.h>
 #include <string.h>
-
+#include <stdio.h>
 
 
 int main(int argc, char *argv[])
 {
-    // read in command line args DONE
+    // command line args
     int set_bits = 0;
     int lines = 0;
     int block_bits = 0;
     char verbose = 0;
-    char trace_name[60];
 
+    // declare string for trace name and location + file pointer
+    // trace_location needs initial size to be used with sprintf I think
+    char *trace_name;
+    char trace_location[30];
+    FILE *fp;
+
+    // cpunts for cache performance
+    int hit_count = 0;
+    int miss_count = 0;
+    int eviction_count = 0;
+
+    // read in command line args and set
     int opt;
 
     while((opt = getopt(argc, argv, "s:E:b:vt:")) != -1) {
@@ -31,7 +42,7 @@ int main(int argc, char *argv[])
                 block_bits = atoi(optarg);
                 break;
 	    case 't':
-		strncpy(trace_name, optarg, strlen(optarg));
+		trace_name = optarg;
 		break;	
             case 'v':
                 verbose = 1;
@@ -40,6 +51,17 @@ int main(int argc, char *argv[])
                 return 0;
         }
     }
+
+    sprintf(trace_location, "traces/%s", trace_name);
+    printf("Trace: %s\n", trace_location);
+    fp = fopen(trace_location, "r");
+    if (fp == NULL){
+    	    printf(" trace file null\n");
+	    return 1;
+	}
+    //print all text in file to confirm
+    // fscanf the trace and update the cache accordingly
+
 
     // setup simulated cache based on command line arguments
     int sets = 1<<set_bits;
@@ -62,12 +84,7 @@ int main(int argc, char *argv[])
 
     // how to do LRU?
 
-    int hit_count = 0;
-    int miss_count = 0;
-    int eviction_count = 0;
-
-    // fscanf the trace and update the cache accordingly
-
+       
     // free malloced memory
     for (int s=0; s<sets; s++) {
         free(cache[s]);
@@ -78,7 +95,10 @@ int main(int argc, char *argv[])
     free(valid_bits);
     free(tags);
 
-    printf("Set bits: %d\nLines: %d\nBlock bits: %d\nVerbose: %d\nTrace:%s\n", set_bits, lines, block_bits, verbose, trace_name);
+    //close the trace file
+    fclose(fp);
+
+    printf("Set bits: %d\nLines: %d\nBlock bits: %d\nVerbose: %d\n", set_bits, lines, block_bits, verbose);
     printSummary(hit_count, miss_count, eviction_count);
     return 0;
 }
