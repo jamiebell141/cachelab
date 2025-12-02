@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
     // declare string for trace name and location + file pointer
     // trace_location needs initial size to be used with sprintf I think
-    char *trace_name;
+    char trace_name[20];
     char trace_location[30];
     FILE *fp;
 
@@ -42,7 +42,8 @@ int main(int argc, char *argv[])
                 block_bits = atoi(optarg);
                 break;
 	    case 't':
-		trace_name = optarg;
+		//trace_name = optarg;
+		strncpy(trace_name, optarg, strlen(optarg)+1);
 		break;	
             case 'v':
                 verbose = 1;
